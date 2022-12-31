@@ -22,10 +22,9 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
     const errors = validationResult(req); //auto extracts any errors from request
     if(!errors.isEmpty()) {
-        return res.status(422).json({
-            message: 'Validation failed, entered data is incorrect',
-            errors: errors.array()
-        });
+        const error = new Error('Validation failed, entered data is incorrect');
+        error.statusCode = 422; //custom property
+        throw error;
     }
 
     const title = req.body.title;
@@ -45,6 +44,11 @@ exports.createPost = (req, res, next) => {
             post: result
         });
     })
-    .catch(err => console.log('Error during saving to DB:', err));
+    .catch((err) => {
+        if(!err.statusCode) {
+            err.statusCode = 500; //if no errors yet, this error shold be a server error
+        }
+        next(err); //passing on the error to the next middleware, as it's the end of the promise chain. Otherwise, we would have said "throw err"
+    });
 
 };

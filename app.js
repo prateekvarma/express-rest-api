@@ -20,6 +20,13 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 
+app.use((error, req, res, next) => {
+    console.log(error);
+    const status = error.statusCode || 500; //incase it's undefined, we will assume a server error
+    const message = error.message;
+    res.status(status).json({ message: message });
+})
+
 mongoose.connect('xxx-mongoDB-URL-xxx').then((result) => {
     app.listen(8080);
 }).catch(err => console.log('Got an error: ', err))
