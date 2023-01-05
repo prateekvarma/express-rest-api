@@ -23,15 +23,23 @@ exports.createPost = (req, res, next) => {
         throw error;
     }
 
+    if(!req.file) {
+        const error = new Error('No image provided!');
+        error.statusCode = 422;
+        throw Error;
+    }
+
+    const imageUrl = req.file.path;
+
     const title = req.body.title;
     const content = req.body.content;
     const post = new Post({
         title: title, 
         content: content,
-        imageUrl: 'images/puppy.jpg',
+        imageUrl: imageUrl,
         creator: { name: 'Prateek' }
     });
-    console.log('sending to DB:', post);
+    
     //Below, we save the post on MongoDB
     post.save()
     .then((result) => {
