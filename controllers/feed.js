@@ -76,3 +76,47 @@ exports.getPost = (req, res, next) => {
         next(err);
     });
 }
+
+exports.updatePost = (req, res, next) => {
+    const postId = req.params.postId;
+
+    const errors = validationResult(req); //auto extracts any errors from request
+    if(!errors.isEmpty()) {
+        const error = new Error('Validation failed, entered data is incorrect');
+        error.statusCode = 422; //custom property
+        throw error;
+    }
+
+    const title = req.body.title;
+    const content = req.body.content;
+    let imageUrl = req.body.image; // if imageUrl is part of the incoming request, and NO new file was selected, the frontend has the existing imageUrl
+    if (req.file) { // new image uploaded
+        imageUrl = req.file.path;
+    }
+    if(!imageUrl) {
+        const error = new Error('You havent selected a file');
+        error.statusCode = 422;
+        throw error;
+    }
+
+    //we have valid data
+    Post.findById(postId).then((post) => {
+        if(!post) {
+            const error = new Error('Could not find post')
+            error.statusCode = 404;
+            throw error; //this error is caught by the following catch block
+        }
+        //we've found the post
+        post.title = title;
+        post.imageUrl = imageUrl;
+        post.content = content;
+        return post.save(); //saved to DB
+    }).then((result) => {
+        res.status(200).json({ message: 'Post updated!', post: result });
+    }).catch((err) => {
+        if(!err.statusCode) {
+            err.statusCode = 500; //if no errors yet, this error shold be a server error
+        }
+        next(err);
+    })
+};
