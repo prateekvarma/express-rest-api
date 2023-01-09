@@ -128,6 +128,28 @@ exports.updatePost = (req, res, next) => {
     })
 };
 
+exports.deletePost = (req, res, next) => {
+    const postId = req.params.postId;
+    Post.findById(postId).then((post) => {
+        if (!post) {
+            const error = new Error('Could not find post')
+            error.statusCode = 404;
+            throw error; //this error is caught by the following catch block
+        }
+
+        clearImage(post.imageUrl);
+        return Post.findByIdAndRemove(postId);
+    }).then((result) => {
+        console.log('Result from deleting: ', result);
+        res.status(200).json({ message: 'Deleted post!' })
+    }).catch((err) => {
+        if(!err.statusCode) {
+            err.statusCode = 500; //if no errors yet, this error shold be a server error
+        }
+        next(err);
+    });
+}
+
 //Below, can be called whenever user uploads a new image.
 const clearImage = (filePath) => {
     filePath = path.join(__dirname, '..', filePath); //the latter filePath is from the args. This will be like 'images/xxx.jpg'
