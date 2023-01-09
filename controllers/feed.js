@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const { validationResult } = require('express-validator');
 
 const Post = require('../models/post');
@@ -107,6 +110,10 @@ exports.updatePost = (req, res, next) => {
             throw error; //this error is caught by the following catch block
         }
         //we've found the post
+        if(imageUrl !== post.imageUrl) {
+            //if there is a change in the previous img and the current one
+            clearImage(post.imageUrl); // delete the previous img
+        }
         post.title = title;
         post.imageUrl = imageUrl;
         post.content = content;
@@ -120,3 +127,9 @@ exports.updatePost = (req, res, next) => {
         next(err);
     })
 };
+
+//Below, can be called whenever user uploads a new image.
+const clearImage = (filePath) => {
+    filePath = path.join(__dirname, '..', filePath); //the latter filePath is from the args. This will be like 'images/xxx.jpg'
+    fs.unlink(filePath, (err) => console.log("Error deleting image: ", err));
+}
