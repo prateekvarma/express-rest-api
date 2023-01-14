@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.put('/signup', [
     body('email')
-      .isEmail()
+      .isEmail() //these chains are validations
       .withMessage('Please enter a valid email')
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((userDoc) => {
