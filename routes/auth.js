@@ -12,7 +12,7 @@ router.put('/signup', [
       .withMessage('Please enter a valid email')
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((userDoc) => {
-          if(UserDoc) {
+          if(userDoc) {
             return Promise.reject('Email address already exists'); // Rejecting a promise, as in it's an error.
           }
         });
