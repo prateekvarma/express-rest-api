@@ -43,7 +43,7 @@ exports.login = (req, res, next) => {
   const password = req.body.password;
   let loadedUser;
 
-  User.findOne({ email: email }); //find the user from DB
+  User.findOne({ email: email }) //find the user from DB
       .then((user) => {
         if(!user) {
           const error = new Error('Could not find user with that email');
