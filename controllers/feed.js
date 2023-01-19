@@ -178,9 +178,14 @@ exports.deletePost = (req, res, next) => {
         clearImage(post.imageUrl);
         return Post.findByIdAndRemove(postId);
     }).then((result) => {
-        console.log('Result from deleting: ', result);
+        return User.findById(req.userId);
+    }).then((user) => {
+        user.posts.pull(postId); //the postId is still available, even if you've deleted the post
+        return user.save();
+    }).then((result) => {
         res.status(200).json({ message: 'Deleted post!' })
-    }).catch((err) => {
+    })
+    .catch((err) => {
         if(!err.statusCode) {
             err.statusCode = 500; //if no errors yet, this error shold be a server error
         }
