@@ -133,6 +133,12 @@ exports.updatePost = (req, res, next) => {
             throw error; //this error is caught by the following catch block
         }
         //we've found the post
+        if(post.creator.toString() !== req.userId) { //'req.userId' from is-auth.js
+            //this post doesn't belong to the authenticated user
+            const error = new Error('Not authorized');
+            error.status = 403;
+            throw error;
+        }
         if(imageUrl !== post.imageUrl) {
             //if there is a change in the previous img and the current one
             clearImage(post.imageUrl); // delete the previous img
