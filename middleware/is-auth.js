@@ -25,6 +25,6 @@ module.exports = (req, res, next) => {
   }
 
   //if reached here, the token is valid
-  req.userId = decodedToken.userId; //construct the request object.
+  req.userId = decodedToken.userId; //construct the request object for 'creator: req.userId' in controllers/feed.js's 'exports.createPost'
   next();
 }
